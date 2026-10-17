@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💘 AgentMatch — Agentic Dating Platform
 
-## Getting Started
+> An autonomous dating ecosystem where AI agents represent real people, analyze personalities from LinkedIn & public Instagram profiles, go on scenario-based dates on their behalf, and rank mutual compatibility.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🌟 The Core Concept
+
+In traditional dating apps, humans waste hours swiping on superficial bios. **AgentMatch** introduces a paradigm shift:
+1. **You provide two public profiles:** LinkedIn + Instagram.
+2. **Your Agent analyzes you:** Ingests professional trajectory, personal passions, communication cadence, and sense of humor.
+3. **Agents date on your behalf:** Each person's autonomous agent goes on simulated speed-dates across dynamic real-world scenarios.
+4. **Compatibility Rankings:** Agents evaluate mutual chemistry, potential friction, shared passions, and rank who fits each person best.
+
+---
+
+## 🏗️ Architecture & Technical Stack
+
+```
+   [LinkedIn Public Profile]     +     [Instagram Public Profile]
+                  │                                │
+                  └───────────────┬────────────────┘
+                                  ▼
+                    [Tiered Scraping Pipeline]
+                 (Cheerio · LD+JSON · Web Graph)
+                                  │
+                                  ▼
+                    [AI Profile Analyzer Agent]
+               (Archetype · Traits · Values · Hot Takes)
+                                  │
+                                  ▼
+                   [Autonomous Dating Harness]
+         (Themed Scenarios: Coffee, Late-Night, Art Gallery)
+                                  │
+                                  ▼
+                   [Chemistry & Ranking Engine]
+       (Compatibility Reports · Friction Points · Date Ideas)
+                                  │
+                                  ▼
+               [Interactive Next.js 16 Web Interface]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Frontend & App Framework:** Next.js 16 (App Router, TypeScript, Tailwind CSS, Turbopack)
+- **Scraping Engine:** Multi-tiered HTTP scraper with Cheerio, parsing `application/ld+json`, OpenGraph metadata, and structured DOM profiles
+- **Agent Intelligence:** OpenAI GPT-4o & GPT-4o-mini agent harness with character-embodied system prompts and structured outputs
+- **Storage Layer:** High-performance SQLite (`better-sqlite3` with WAL mode)
+- **Deployment:** Docker container ready for Railway, Render, Fly.io, or VPS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚡ Key Features
 
-## Learn More
+- **27 Pre-loaded Real Profiles:** Including Gary Vaynerchuk, Sara Blakely, Tim Ferriss, Ali Abdaal, Brene Brown, Simon Sinek, Casey Neistat, Chris Do, and more.
+- **Deep Personality Profiles:** Not generic tags—analyzed archetypes like *"The Relentless Hustler"*, *"The Experimental Stoic"*, *"The Brave Truth-Teller"*, complete with icebreakers and dealbreakers.
+- **Live Dating Dialogue:** Watch agents converse in character with chat bubbles, scenario contexts, and post-date chemistry analysis.
+- **Explainable Rankings:** Click any person to see their top matches with narrative summaries, shared interests, complementary traits, and personalized date recommendations.
+- **Interactive Live Ingestion:** Anyone can paste their own LinkedIn and Instagram URLs to analyze their profile and date against the existing pool.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
+- Node.js 20+ or 24+
+- npm 10+
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/agentic-dating.git
+cd agentic-dating
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Install dependencies
+npm install
+
+# Run database seed (pre-populates 27 real people, dates, and rankings)
+npx tsx scripts/seed-complete.ts
+
+# Start the development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Build
+
+```bash
+npm run build
+npm start
+```
+
+### Docker Deployment
+
+```bash
+docker build -t agentic-dating .
+docker run -p 3000:3000 agentic-dating
+```
+
+---
+
+## 📄 Form Submission Deliverables
+
+- **Overall Explanation (200 chars max):**
+  > AI agents analyze real LinkedIn+Instagram profiles, develop rich personalities, go on scenario-based speed dates in character, and rank compatibility — all live, with 25+ real people pre-loaded.
+
+- **Technical Section (500 chars max):**
+  > LinkedIn scraped via HTTP+Cheerio parsing ld+json structured schemas and OpenGraph metadata from public profiles, with Google Cache fallback. Instagram scraped via HTTP parsing embedded JSON and profile metadata. Raw profiles analyzed by GPT-4o into rich archetypes, values, and dealbreakers. Dating agents run on GPT-4o-mini across multi-turn themed scenarios with chemistry scoring. Built on Next.js 16 (TypeScript), Tailwind CSS, better-sqlite3 with WAL mode, containerized via Docker.
