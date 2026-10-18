@@ -233,6 +233,57 @@ function initializeDataStore(): DataStore {
       const raw = fs.readFileSync(filePath, 'utf-8');
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.people) && parsed.people.length > 0) {
+        let modified = false;
+        for (const sp of seedPeople) {
+          const exists = parsed.people.some((p: PersonRecord) => p.name.toLowerCase() === sp.name.toLowerCase());
+          if (!exists) {
+            const isSaikat = sp.name.toLowerCase().includes('saikat');
+            const id = isSaikat ? '38a33785-2758-4dc5-80db-608eaaca9424' : `person-${parsed.people.length + 1}`;
+            const custom = DETAILED_PROFILES[sp.name as keyof typeof DETAILED_PROFILES];
+
+            parsed.people.unshift({
+              id,
+              name: sp.name,
+              linkedin_url: sp.linkedinUrl,
+              instagram_url: sp.instagramUrl,
+              photo_url: null,
+              category: sp.category,
+              linkedin_data: JSON.stringify({ headline: `${sp.category} leader & creator` }),
+              instagram_data: JSON.stringify({ bio: custom?.tagline || '' }),
+              created_at: new Date().toISOString(),
+            });
+
+            parsed.profiles.unshift({
+              id: `profile-${id}`,
+              person_id: id,
+              tagline: custom?.tagline || '',
+              personality_type: custom?.personality_type || 'The Visionary',
+              traits: custom?.traits || ['curious', 'driven'],
+              communication_style: custom?.communication_style || 'Engaging',
+              humor_type: custom?.humor_type || 'Witty',
+              hobbies: custom?.hobbies || [],
+              passions: custom?.passions || [],
+              values_list: custom?.values_list || [],
+              looking_for: custom?.looking_for || '',
+              green_flags: custom?.green_flags || [],
+              dealbreakers: custom?.dealbreakers || [],
+              ideal_date: custom?.ideal_date || '',
+              icebreaker: custom?.icebreaker || '',
+              controversial_take: custom?.controversial_take || '',
+              summary: custom?.summary || '',
+              created_at: new Date().toISOString(),
+            });
+
+            modified = true;
+          }
+        }
+
+        if (modified) {
+          try {
+            fs.writeFileSync(filePath, JSON.stringify(parsed, null, 2), 'utf-8');
+          } catch {}
+        }
+
         return parsed;
       }
     }

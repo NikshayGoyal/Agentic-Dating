@@ -1,6 +1,28 @@
 {
   "people": [
     {
+      "id": "person-29",
+      "name": "Nikshay Goyal",
+      "linkedin_url": "https://linkedin.com/in/nikshaygoyal",
+      "instagram_url": "https://instagram.com/nikshaygoyal",
+      "photo_url": null,
+      "category": "tech",
+      "linkedin_data": "{\"headline\":\"tech leader & creator\"}",
+      "instagram_data": "{\"bio\":\"Solving hard problems with deep curiosity, high standards, and calm clarity.\"}",
+      "created_at": "2026-10-18T13:33:27.974Z"
+    },
+    {
+      "id": "38a33785-2758-4dc5-80db-608eaaca9424",
+      "name": "Saikat Das",
+      "linkedin_url": "https://linkedin.com/in/saikatdas",
+      "instagram_url": "https://instagram.com/saikatdas",
+      "photo_url": null,
+      "category": "tech",
+      "linkedin_data": "{\"headline\":\"tech leader & creator\"}",
+      "instagram_data": "{\"bio\":\"Saikat Das — full of surprises\"}",
+      "created_at": "2026-10-18T13:33:27.972Z"
+    },
+    {
       "id": "person-1",
       "name": "Gary Vaynerchuk",
       "linkedin_url": "https://linkedin.com/in/garyvaynerchuk",
@@ -299,6 +321,97 @@
     }
   ],
   "profiles": [
+    {
+      "id": "profile-person-29",
+      "person_id": "person-29",
+      "tagline": "Solving hard problems with deep curiosity, high standards, and calm clarity.",
+      "personality_type": "The Strategic Architect",
+      "traits": [
+        "analytical",
+        "resourceful",
+        "ambitious",
+        "articulate"
+      ],
+      "communication_style": "Insightful, grounded, and engaging",
+      "humor_type": "Dry wit, sharp observational banter",
+      "hobbies": [
+        "exploring AI architectures",
+        "reading non-fiction",
+        "fitness",
+        "late-night coding"
+      ],
+      "passions": [
+        "cutting-edge technology",
+        "building high-impact systems",
+        "continuous compounding"
+      ],
+      "values_list": [
+        "intellectual honesty",
+        "integrity",
+        "bold ambition"
+      ],
+      "looking_for": "A bright, curious, and grounded partner who loves deep discussions and big dreams.",
+      "green_flags": [
+        "intellectual curiosity",
+        "emotional maturity",
+        "authenticity"
+      ],
+      "dealbreakers": [
+        "lack of ambition",
+        "superficiality",
+        "constant negativity"
+      ],
+      "ideal_date": "An evening walk through an inspiring neighborhood, lively discussions over great food, and zero distractions.",
+      "icebreaker": "What's an idea or project you're working on that you can talk about for hours?",
+      "controversial_take": "True innovation comes from questioning the assumptions everyone else takes for granted.",
+      "summary": "Nikshay combines intellectual rigor with a grounded, curious mindset. He brings thoughtful depth and infectious drive to every conversation.",
+      "created_at": "2026-10-18T13:33:27.974Z"
+    },
+    {
+      "id": "profile-38a33785-2758-4dc5-80db-608eaaca9424",
+      "person_id": "38a33785-2758-4dc5-80db-608eaaca9424",
+      "tagline": "Saikat Das — full of surprises",
+      "personality_type": "The Enigma",
+      "traits": [
+        "curious",
+        "driven",
+        "authentic",
+        "thoughtful"
+      ],
+      "communication_style": "Direct but warm",
+      "humor_type": "Observational with a self-aware edge",
+      "hobbies": [
+        "exploring new ideas",
+        "connecting with interesting people",
+        "learning"
+      ],
+      "passions": [
+        "making an impact",
+        "personal growth",
+        "creativity"
+      ],
+      "values_list": [
+        "authenticity",
+        "ambition",
+        "empathy"
+      ],
+      "looking_for": "Someone who challenges them intellectually and makes them laugh",
+      "green_flags": [
+        "intellectual curiosity",
+        "emotional intelligence",
+        "sense of humor"
+      ],
+      "dealbreakers": [
+        "dishonesty",
+        "close-mindedness",
+        "lack of ambition"
+      ],
+      "ideal_date": "A rooftop dinner with incredible conversation and an unexpected adventure afterwards",
+      "icebreaker": "Hi! I'm Saikat Das. Quick question — what's something you're irrationally passionate about?",
+      "controversial_take": "The best relationships start with a good debate",
+      "summary": "Saikat Das brings a unique combination of drive and warmth. They're the kind of person who lights up a room while making everyone in it feel seen.",
+      "created_at": "2026-10-18T13:33:27.974Z"
+    },
     {
       "id": "profile-1",
       "person_id": "person-1",
