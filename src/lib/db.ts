@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { autoSeed } from './seed-data';
 
 const DB_PATH = path.join(process.cwd(), 'data.db');
 
@@ -83,6 +84,16 @@ function initializeSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_dates_person2 ON date_conversations(person2_id);
     CREATE INDEX IF NOT EXISTS idx_rankings_person ON rankings(person_id);
   `);
+
+  try {
+    const row = db.prepare('SELECT COUNT(*) as count FROM people').get() as { count: number } | undefined;
+    if (!row || row.count === 0) {
+      console.log('[DB] Database is empty. Running autoSeed...');
+      autoSeed(db);
+    }
+  } catch (err) {
+    console.error('[DB] Auto-seed check error:', err);
+  }
 }
 
 // ===== Helper Functions =====
