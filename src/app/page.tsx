@@ -90,7 +90,7 @@ export default function HomePage() {
         setPersonName('');
         fetchPeople();
       } else {
-        setMessage(`❌ Ingestion failed: ${data.error}`);
+        setMessage(`❌ Ingestion failed: ${data.error || data.message || 'Unknown server response'}`);
       }
     } catch (err) {
       setMessage('❌ Failed to add person. Verify URLs and connectivity.');
@@ -122,7 +122,7 @@ export default function HomePage() {
         setMessage(`✅ Simulation complete! ${data.message}`);
         fetchPeople();
       } else {
-        setMessage(`❌ Simulation error: ${data.error}`);
+        setMessage(`❌ Simulation error: ${data.error || data.message || 'Unknown server error'}`);
       }
     } catch (err) {
       setMessage('❌ Simulation failed. Please check server logs.');

@@ -1,9 +1,9 @@
-FROM node:20-alpine AS base
-
-# Install dependencies required for native modules (better-sqlite3)
-RUN apk add --no-cache libc6-compat python3 make g++
+FROM node:20-slim AS base
 
 WORKDIR /app
+
+# Install build dependencies for native C++ modules
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies based on package-lock.json
 COPY package*.json ./
