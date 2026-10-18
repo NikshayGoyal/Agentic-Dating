@@ -190,21 +190,38 @@ const DETAILED_PROFILES: Record<string, Partial<ProfileRecord>> = {
     summary: "Chris brings zen-like focus and laser clarity. He sees through pretenses in seconds and honors pure craft and deep sincerity."
   },
   "Saikat Das": {
-    personality_type: "The Enigma",
-    tagline: "Saikat Das — full of surprises",
-    traits: ["curious", "driven", "authentic", "thoughtful"],
-    communication_style: "Direct but warm",
-    humor_type: "Observational with a self-aware edge",
-    hobbies: ["exploring new ideas", "connecting with interesting people", "learning"],
-    passions: ["making an impact", "personal growth", "creativity"],
-    values_list: ["authenticity", "ambition", "empathy"],
-    looking_for: "Someone who challenges them intellectually and makes them laugh",
-    green_flags: ["intellectual curiosity", "emotional intelligence", "sense of humor"],
-    dealbreakers: ["dishonesty", "close-mindedness", "lack of ambition"],
-    ideal_date: "A rooftop dinner with incredible conversation and an unexpected adventure afterwards",
-    icebreaker: "Hi! I'm Saikat Das. Quick question — what's something you're irrationally passionate about?",
-    controversial_take: "The best relationships start with a good debate",
-    summary: "Saikat Das brings a unique combination of drive and warmth. They're the kind of person who lights up a room while making everyone in it feel seen."
+    personality_type: "The Thoughtful Enigma",
+    tagline: "Curious mind, quiet depth, and crafting elegant human solutions.",
+    traits: ["analytical", "insightful", "grounded", "curious"],
+    communication_style: "Articulate, calm, thoughtful, and listener-first",
+    humor_type: "Observational irony and dry intellectual wit",
+    hobbies: ["exploring obscure architecture", "reading sci-fi", "specialty coffee brewing", "chess"],
+    passions: ["engineering craftsmanship", "human psychology", "creative problem-solving"],
+    values_list: ["intellectual honesty", "integrity", "depth over noise"],
+    looking_for: "Someone emotionally intelligent and curious who loves Sunday walks, deep debates, and unhurried stillness.",
+    green_flags: ["emotional maturity", "love of deep reading", "unpretentious presence"],
+    dealbreakers: ["superficial small talk", "arrogance", "dishonesty"],
+    ideal_date: "Browsing an indie bookstore, picking a mystery book for each other, then debating ideas over espresso.",
+    icebreaker: "What's an idea or subject you could happily talk about for four hours straight without getting bored?",
+    controversial_take: "Most people talk to be heard rather than to understand—silence is the most underrated communication skill.",
+    summary: "Saikat combines intellectual precision with authentic warmth. He creates space where deep, meaningful conversations happen effortlessly."
+  },
+  "Anirudh Singh": {
+    personality_type: "The Kinetic Maverick",
+    tagline: "High-energy builder turning bold ideas into unstoppable momentum.",
+    traits: ["fearless", "strategic", "dynamic", "charismatic"],
+    communication_style: "Rapid-fire, animated, storytelling-rich, and direct",
+    humor_type: "Playful teasing, quick-witted sarcastic banter",
+    hobbies: ["calisthenics", "scouting rooftop cafes", "analyzing tech trends", "road tripping"],
+    passions: ["exponential tech", "disrupting conventional wisdom", "building communities"],
+    values_list: ["boldness", "radical candor", "loyalty"],
+    looking_for: "Someone ambitious, playful, and sharp who doesn't take life too seriously and loves sudden adventures.",
+    green_flags: ["unfiltered authenticity", "can match sharp banter", "bias for action"],
+    dealbreakers: ["timidity", "habitual complaining", "indecision"],
+    ideal_date: "Cocktails at an underground speakeasy followed by spontaneous street food and debating life goals till 2 AM.",
+    icebreaker: "Let's skip the small talk: what's the craziest calculated risk you've ever taken, and did it pay off?",
+    controversial_take: "Comfort is a silent career killer—if you're not uncomfortable, you're not growing.",
+    summary: "Anirudh brings magnetic charisma and infectious energy into every room. He challenges you to think bigger while laughing through the chaos."
   },
   "Nikshay Goyal": {
     personality_type: "The Strategic Architect",
@@ -238,7 +255,12 @@ function initializeDataStore(): DataStore {
           const exists = parsed.people.some((p: PersonRecord) => p.name.toLowerCase() === sp.name.toLowerCase());
           if (!exists) {
             const isSaikat = sp.name.toLowerCase().includes('saikat');
-            const id = isSaikat ? '38a33785-2758-4dc5-80db-608eaaca9424' : `person-${parsed.people.length + 1}`;
+            const isAnirudh = sp.name.toLowerCase().includes('anirudh');
+            const id = isSaikat 
+              ? '38a33785-2758-4dc5-80db-608eaaca9424' 
+              : isAnirudh 
+              ? '8f651dd0-68b3-42bb-a62f-263f39b6570c' 
+              : `person-${parsed.people.length + 1}`;
             const custom = DETAILED_PROFILES[sp.name as keyof typeof DETAILED_PROFILES];
 
             parsed.people.unshift({
@@ -274,6 +296,42 @@ function initializeDataStore(): DataStore {
               created_at: new Date().toISOString(),
             });
 
+            modified = true;
+          }
+        }
+
+        // Overwrite any profiles that match DETAILED_PROFILES to ensure they never share generic fallbacks
+        for (const [dName, custom] of Object.entries(DETAILED_PROFILES)) {
+          const person = parsed.people.find((p: PersonRecord) => p.name.toLowerCase() === dName.toLowerCase());
+          if (person) {
+            const profIdx = parsed.profiles.findIndex((pr: ProfileRecord) => pr.person_id === person.id);
+            const c = custom as Record<string, unknown>;
+            const freshProfile: ProfileRecord = {
+              id: profIdx >= 0 ? parsed.profiles[profIdx].id : `profile-${person.id}`,
+              person_id: person.id,
+              tagline: String(c.tagline || ''),
+              personality_type: String(c.personality_type || 'The Visionary'),
+              traits: Array.isArray(c.traits) ? (c.traits as string[]) : ['curious', 'driven'],
+              communication_style: String(c.communication_style || 'Engaging'),
+              humor_type: String(c.humor_type || 'Witty'),
+              hobbies: Array.isArray(c.hobbies) ? (c.hobbies as string[]) : [],
+              passions: Array.isArray(c.passions) ? (c.passions as string[]) : [],
+              values_list: Array.isArray(c.values_list) ? (c.values_list as string[]) : [],
+              looking_for: String(c.looking_for || ''),
+              green_flags: Array.isArray(c.green_flags) ? (c.green_flags as string[]) : [],
+              dealbreakers: Array.isArray(c.dealbreakers) ? (c.dealbreakers as string[]) : [],
+              ideal_date: String(c.ideal_date || ''),
+              icebreaker: String(c.icebreaker || ''),
+              controversial_take: String(c.controversial_take || ''),
+              summary: String(c.summary || ''),
+              created_at: new Date().toISOString()
+            };
+
+            if (profIdx >= 0) {
+              parsed.profiles[profIdx] = freshProfile;
+            } else {
+              parsed.profiles.unshift(freshProfile);
+            }
             modified = true;
           }
         }
@@ -523,6 +581,10 @@ export function getPersonById(id: string) {
   if (id === '38a33785-2758-4dc5-80db-608eaaca9424' || id.toLowerCase().includes('saikat')) {
     const saikat = store.people.find(p => p.name.toLowerCase().includes('saikat'));
     if (saikat) return saikat;
+  }
+  if (id === '8f651dd0-68b3-42bb-a62f-263f39b6570c' || id.toLowerCase().includes('anirudh')) {
+    const anirudh = store.people.find(p => p.name.toLowerCase().includes('anirudh'));
+    if (anirudh) return anirudh;
   }
 
   // Name slug resolution
