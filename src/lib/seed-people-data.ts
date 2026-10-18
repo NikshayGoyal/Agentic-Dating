@@ -32,5 +32,7 @@ export const SEED_PEOPLE: SeedPerson[] = [
   {"name": "Amy Porterfield", "linkedinUrl": "https://linkedin.com/in/amyporterfield", "instagramUrl": "https://instagram.com/amyporterfield", "category": "creator"},
   {"name": "Tony Robbins", "linkedinUrl": "https://linkedin.com/in/ajrobbins", "instagramUrl": "https://instagram.com/tonyrobbins", "category": "educator"},
   {"name": "Nas Daily", "linkedinUrl": "https://linkedin.com/in/nassyassin", "instagramUrl": "https://instagram.com/nasdaily", "category": "creator"},
-  {"name": "Chris Do", "linkedinUrl": "https://linkedin.com/in/thechrisdo", "instagramUrl": "https://instagram.com/thechrisdo", "category": "designer"}
+  {"name": "Chris Do", "linkedinUrl": "https://linkedin.com/in/thechrisdo", "instagramUrl": "https://instagram.com/thechrisdo", "category": "designer"},
+  {"name": "Saikat Das", "linkedinUrl": "https://linkedin.com/in/saikatdas", "instagramUrl": "https://instagram.com/saikatdas", "category": "tech"},
+  {"name": "Nikshay Goyal", "linkedinUrl": "https://linkedin.com/in/nikshaygoyal", "instagramUrl": "https://instagram.com/nikshaygoyal", "category": "tech"}
 ];

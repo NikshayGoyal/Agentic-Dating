@@ -188,6 +188,40 @@ const DETAILED_PROFILES: Record<string, Partial<ProfileRecord>> = {
     icebreaker: "If I charge you $10,000 for this conversation, what question would you ask me right now?",
     controversial_take: "Good design is invisible, and most people are terrified of simplicity because it exposes their lack of substance.",
     summary: "Chris brings zen-like focus and laser clarity. He sees through pretenses in seconds and honors pure craft and deep sincerity."
+  },
+  "Saikat Das": {
+    personality_type: "The Enigma",
+    tagline: "Saikat Das — full of surprises",
+    traits: ["curious", "driven", "authentic", "thoughtful"],
+    communication_style: "Direct but warm",
+    humor_type: "Observational with a self-aware edge",
+    hobbies: ["exploring new ideas", "connecting with interesting people", "learning"],
+    passions: ["making an impact", "personal growth", "creativity"],
+    values_list: ["authenticity", "ambition", "empathy"],
+    looking_for: "Someone who challenges them intellectually and makes them laugh",
+    green_flags: ["intellectual curiosity", "emotional intelligence", "sense of humor"],
+    dealbreakers: ["dishonesty", "close-mindedness", "lack of ambition"],
+    ideal_date: "A rooftop dinner with incredible conversation and an unexpected adventure afterwards",
+    icebreaker: "Hi! I'm Saikat Das. Quick question — what's something you're irrationally passionate about?",
+    controversial_take: "The best relationships start with a good debate",
+    summary: "Saikat Das brings a unique combination of drive and warmth. They're the kind of person who lights up a room while making everyone in it feel seen."
+  },
+  "Nikshay Goyal": {
+    personality_type: "The Strategic Architect",
+    tagline: "Solving hard problems with deep curiosity, high standards, and calm clarity.",
+    traits: ["analytical", "resourceful", "ambitious", "articulate"],
+    communication_style: "Insightful, grounded, and engaging",
+    humor_type: "Dry wit, sharp observational banter",
+    hobbies: ["exploring AI architectures", "reading non-fiction", "fitness", "late-night coding"],
+    passions: ["cutting-edge technology", "building high-impact systems", "continuous compounding"],
+    values_list: ["intellectual honesty", "integrity", "bold ambition"],
+    looking_for: "A bright, curious, and grounded partner who loves deep discussions and big dreams.",
+    green_flags: ["intellectual curiosity", "emotional maturity", "authenticity"],
+    dealbreakers: ["lack of ambition", "superficiality", "constant negativity"],
+    ideal_date: "An evening walk through an inspiring neighborhood, lively discussions over great food, and zero distractions.",
+    icebreaker: "What's an idea or project you're working on that you can talk about for hours?",
+    controversial_take: "True innovation comes from questioning the assumptions everyone else takes for granted.",
+    summary: "Nikshay combines intellectual rigor with a grounded, curious mindset. He brings thoughtful depth and infectious drive to every conversation."
   }
 };
 
@@ -431,7 +465,21 @@ export function getAllPeople() {
 
 export function getPersonById(id: string) {
   const store = getStore();
-  return store.people.find(p => p.id === id) || null;
+  const direct = store.people.find(p => p.id === id);
+  if (direct) return direct;
+  
+  // Historical UUID alias resolution (e.g., dynamic session links)
+  if (id === '38a33785-2758-4dc5-80db-608eaaca9424' || id.toLowerCase().includes('saikat')) {
+    const saikat = store.people.find(p => p.name.toLowerCase().includes('saikat'));
+    if (saikat) return saikat;
+  }
+
+  // Name slug resolution
+  const normalizedId = id.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const bySlug = store.people.find(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedId);
+  if (bySlug) return bySlug;
+
+  return null;
 }
 
 export function updatePersonData(id: string, field: string, value: string) {
@@ -497,7 +545,15 @@ export function createProfile(personId: string, profile: {
 
 export function getProfileByPersonId(personId: string) {
   const store = getStore();
-  const pr = store.profiles.find(p => p.person_id === personId);
+  let pr = store.profiles.find(p => p.person_id === personId);
+  
+  if (!pr) {
+    const person = getPersonById(personId);
+    if (person) {
+      pr = store.profiles.find(p => p.person_id === person.id);
+    }
+  }
+
   if (!pr) return null;
   return {
     ...pr,

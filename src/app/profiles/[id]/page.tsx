@@ -38,7 +38,23 @@ export default async function ProfilePage({ params }: PageProps) {
   const person = getPersonById(id) as unknown as PersonData | undefined;
 
   if (!person) {
-    notFound();
+    return (
+      <div className="min-h-screen px-4 py-24 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center">
+        <div className="h-16 w-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-3xl mb-4 shadow-lg shadow-amber-500/10">
+          🔍
+        </div>
+        <h1 className="text-2xl font-black text-white">Persona Session Cleared</h1>
+        <p className="mt-2 text-sm text-zinc-400 max-w-md leading-relaxed">
+          This dynamically generated link was refreshed during our zero-downtime server redeploy. Explore all 29+ active agent dossiers below!
+        </p>
+        <Link
+          href="/profiles"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-rose-500/20 hover:scale-105 transition-all"
+        >
+          Explore All Active Profiles →
+        </Link>
+      </div>
+    );
   }
 
   const profile = getProfileByPersonId(id) as unknown as ProfileData | null;
