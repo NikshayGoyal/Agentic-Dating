@@ -11,6 +11,7 @@ RUN npm ci
 
 # Copy source code and pre-seeded database
 COPY . .
+RUN chmod -R 777 /app
 
 # Build the Next.js app
 ENV NEXT_TELEMETRY_DISABLED=1

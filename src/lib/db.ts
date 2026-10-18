@@ -8,9 +8,14 @@ let _db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (!_db) {
-    _db = new Database(DB_PATH);
-    _db.pragma('journal_mode = WAL');
-    _db.pragma('foreign_keys = ON');
+    _db = new Database(DB_PATH, { timeout: 5000 });
+    try {
+      _db.pragma('journal_mode = DELETE');
+      _db.pragma('busy_timeout = 5000');
+      _db.pragma('foreign_keys = ON');
+    } catch (e) {
+      console.warn('[DB] Pragma initialization warning:', e);
+    }
     initializeSchema(_db);
   }
   return _db;
