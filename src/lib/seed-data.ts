@@ -340,3 +340,38 @@ export function autoSeed(db: Database.Database) {
   seedTransaction();
   console.log(`[AutoSeed] Seeded ${createdPeople.length} people with dates and rankings.`);
 }
+
+export function getFallbackProfiles() {
+  return seedPeople.map((person, idx) => {
+    const custom = DETAILED_PROFILES[person.name as keyof typeof DETAILED_PROFILES];
+    const personalityType = custom?.personalityType || `The Dynamic ${person.category.charAt(0).toUpperCase() + person.category.slice(1)}`;
+    const tagline = custom?.tagline || `Living at the intersection of passion, purpose, and ${person.category}.`;
+    const traits = custom?.traits || ["passionate", "visionary", "creative", "driven"];
+    const summary = custom?.summary || `${person.name} is a renowned figure known for bringing energy, insight, and genuine passion to everything they create.`;
+
+    return {
+      id: `seed-${idx}`,
+      name: person.name,
+      linkedin_url: person.linkedinUrl,
+      instagram_url: person.instagramUrl,
+      photo_url: null,
+      category: person.category,
+      tagline,
+      personality_type: personalityType,
+      traits,
+      communication_style: custom?.communicationStyle || "Engaging, authentic, and charismatic",
+      humor_type: custom?.humorType || "Playful and quick-witted",
+      hobbies: custom?.hobbies || ["traveling", "exploring new cuisine", "fitness", "reading"],
+      passions: custom?.passions || ["human potential", "storytelling", "community building"],
+      values: custom?.values || ["authenticity", "growth", "kindness"],
+      looking_for: custom?.lookingFor || "A partner who shares big ambitions, loves laughing, and values genuine connection.",
+      green_flags: custom?.greenFlags || ["emotional maturity", "sense of humor", "intellectual curiosity"],
+      dealbreakers: custom?.dealbreakers || ["arrogance", "lack of drive", "dishonesty"],
+      ideal_date: custom?.idealDate || "Exploring a lively neighborhood market followed by great food and hours of unscripted conversation.",
+      icebreaker: custom?.icebreaker || "Hey! What's something you're working on that lights you up right now?",
+      controversial_take: custom?.controversialTake || "The best things in life happen when you throw away the script.",
+      summary,
+    };
+  });
+}
+

@@ -32,22 +32,31 @@ export async function POST(request: NextRequest) {
       null;
 
     // Step 2: Create person in database
-    const personId = createPerson({
-      name,
-      linkedinUrl,
-      instagramUrl,
-      photoUrl: photoUrl || undefined,
-      category,
-      linkedinData: scrapedData.linkedin ? JSON.stringify(scrapedData.linkedin) : undefined,
-      instagramData: scrapedData.instagram ? JSON.stringify(scrapedData.instagram) : undefined,
-    });
+    let personId = crypto.randomUUID();
+    try {
+      personId = createPerson({
+        name,
+        linkedinUrl,
+        instagramUrl,
+        photoUrl: photoUrl || undefined,
+        category,
+        linkedinData: scrapedData.linkedin ? JSON.stringify(scrapedData.linkedin) : undefined,
+        instagramData: scrapedData.instagram ? JSON.stringify(scrapedData.instagram) : undefined,
+      });
+    } catch (dbErr) {
+      console.warn('[Pipeline] DB createPerson warning:', dbErr);
+    }
 
     // Step 3: Analyze profile with AI
     console.log(`[Pipeline] Analyzing profile for ${name}...`);
     const profile = await analyzeProfile(scrapedData.linkedin, scrapedData.instagram, name);
 
     // Step 4: Save profile
-    createProfile(personId, profile);
+    try {
+      createProfile(personId, profile);
+    } catch (dbErr) {
+      console.warn('[Pipeline] DB createProfile warning:', dbErr);
+    }
 
     console.log(`[Pipeline] Complete for ${name} (${profile.personalityType})`);
 
