@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import seedPeople from '../../data/seed-people.json';
+import { SEED_PEOPLE as seedPeople } from './seed-people-data';
 import { DATE_SCENARIOS } from './types';
 
 // Storage file path (persists newly ingested people & simulations)

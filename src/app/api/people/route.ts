@@ -2,19 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createPerson, getAllPeople, getPersonById, getAllProfiles, getStats } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
   try {
     const people = getAllProfiles();
     const stats = getStats();
     return NextResponse.json({ people, stats });
-  } catch (error) {
-    console.error('GET /api/people error:', error);
-    const { getFallbackProfiles } = require('@/lib/seed-data');
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('GET /api/people error:', message);
     return NextResponse.json({
-      people: getFallbackProfiles(),
-      stats: { people: 28, profiles: 28, dates: 13, rankings: 270 }
-    });
+      people: [],
+      stats: { people: 0, profiles: 0, dates: 0, rankings: 0 },
+      error: message
+    }, { status: 200 });
   }
 }
 
@@ -40,8 +42,9 @@ export async function POST(request: NextRequest) {
 
     const person = getPersonById(id);
     return NextResponse.json({ person, id }, { status: 201 });
-  } catch (error) {
-    console.error('POST /api/people error:', error);
-    return NextResponse.json({ error: 'Failed to create person' }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('POST /api/people error:', message);
+    return NextResponse.json({ error: 'Failed to create person: ' + message }, { status: 500 });
   }
 }
