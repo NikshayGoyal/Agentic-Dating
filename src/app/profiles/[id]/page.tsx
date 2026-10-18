@@ -251,7 +251,7 @@ export default async function ProfilePage({ params }: PageProps) {
                 </div>
 
                 <div className="space-y-2.5">
-                  {(rankings as Array<Record<string, unknown>>).slice(0, 5).map((r, i) => (
+                  {(rankings as any[]).slice(0, 5).map((r, i) => (
                     <div key={r.id as string} className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-zinc-800/40 p-3 hover:border-zinc-700 transition-colors">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black shrink-0 ${
@@ -290,7 +290,7 @@ export default async function ProfilePage({ params }: PageProps) {
                 </div>
 
                 <div className="space-y-2.5">
-                  {(dates as Array<Record<string, unknown>>).slice(0, 3).map((d) => {
+                  {(dates as any[]).slice(0, 3).map((d) => {
                     const scenario = (() => { try { return JSON.parse(d.scenario as string); } catch { return { emoji: '💬', title: 'Date' }; } })();
                     const partnerName = d.person1_id === id ? d.person2_name : d.person1_name;
                     return (

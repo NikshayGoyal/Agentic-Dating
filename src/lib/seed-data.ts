@@ -1,4 +1,3 @@
-import type Database from 'better-sqlite3';
 import seedPeople from '../../data/seed-people.json';
 import { DATE_SCENARIOS } from './types';
 
@@ -208,7 +207,7 @@ const DETAILED_PROFILES: Record<string, {
   }
 };
 
-export function autoSeed(db: Database.Database) {
+export function autoSeed(db: any) {
   console.log('[AutoSeed] Populating database with seed profiles...');
   const insertPerson = db.prepare(`
     INSERT OR REPLACE INTO people (id, name, linkedin_url, instagram_url, photo_url, category, linkedin_data, instagram_data)
