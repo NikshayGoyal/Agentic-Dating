@@ -3,6 +3,7 @@ import { runDatingSimulation } from '@/lib/agents/orchestrator';
 import { generateRankings } from '@/lib/agents/ranker';
 import { getAllPeople } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max
 
 export async function POST(request: NextRequest) {

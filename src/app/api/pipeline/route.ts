@@ -3,6 +3,8 @@ import { scrapeProfile } from '@/lib/scraper';
 import { analyzeProfile } from '@/lib/agents/analyzer';
 import { createPerson, createProfile, updatePersonData, getAllPeople } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
