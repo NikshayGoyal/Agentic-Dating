@@ -217,6 +217,97 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* How It Works (In 3 Simple Steps) */}
+      <section className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-300">
+              ⚡ How It Works
+            </span>
+            <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl tracking-tight">
+              Dating Done Right in <span className="gradient-text">3 Simple Steps</span>
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-zinc-400">
+              Skip weeks of superficial texting and awkward coffee dates. Let autonomous AI twins test real chemistry first.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Step 1 */}
+            <div className="relative group rounded-3xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/80 to-zinc-950/80 p-6 backdrop-blur-xl transition-all hover:border-amber-500/40 hover:-translate-y-1 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-xl text-amber-400 font-black border border-amber-500/20">
+                  1
+                </span>
+                <span className="text-[11px] font-mono text-amber-400/80 uppercase tracking-wider bg-amber-500/5 px-2.5 py-1 rounded-full border border-amber-500/10">
+                  Step 01
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-300 transition-colors">
+                Learns Who You Are
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+                Reads your public presence (<strong className="text-zinc-200">LinkedIn & Instagram</strong>) to extract your actual personality archetype, communication style, humor, core values, green flags, and non-negotiable dealbreakers.
+              </p>
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                <span className="text-zinc-500 font-mono text-[10px]">OUTPUT: PSYCH PROFILE</span>
+                <Link href="/profiles" className="text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1">
+                  View Dossiers <span>→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative group rounded-3xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/80 to-zinc-950/80 p-6 backdrop-blur-xl transition-all hover:border-rose-500/40 hover:-translate-y-1 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 text-xl text-rose-400 font-black border border-rose-500/20">
+                  2
+                </span>
+                <span className="text-[11px] font-mono text-rose-400/80 uppercase tracking-wider bg-rose-500/5 px-2.5 py-1 rounded-full border border-rose-500/10">
+                  Step 02
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-rose-300 transition-colors">
+                Filters the Best Candidates
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+                Instantly scans everyone in the pool and finds your <strong className="text-zinc-200">top 4 most compatible matches</strong> in under 25 milliseconds using 512-dimensional semantic vector cosine similarity.
+              </p>
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                <span className="text-zinc-500 font-mono text-[10px]">STAGE 1: VECTOR FUNNEL</span>
+                <Link href="/rankings" className="text-rose-400 hover:text-rose-300 font-semibold inline-flex items-center gap-1">
+                  See Rankings <span>→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative group rounded-3xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/80 to-zinc-950/80 p-6 backdrop-blur-xl transition-all hover:border-purple-500/40 hover:-translate-y-1 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-500/10 text-xl text-purple-400 font-black border border-purple-500/20">
+                  3
+                </span>
+                <span className="text-[11px] font-mono text-purple-400/80 uppercase tracking-wider bg-purple-500/5 px-2.5 py-1 rounded-full border border-purple-500/10">
+                  Step 03
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                Simulates the First Date
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+                Your AI bot and their AI bot have a realistic conversation in dynamic date scenarios, testing authentic banter and dealbreaker friction, then scores your chemistry out of 100 with a custom date blueprint.
+              </p>
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                <span className="text-zinc-500 font-mono text-[10px]">STAGE 2: SPEED DATES</span>
+                <Link href="/dating" className="text-purple-400 hover:text-purple-300 font-semibold inline-flex items-center gap-1">
+                  Read Transcripts <span>→</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Action Command Center (Simulation & Ingestion) */}
       <section className="px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl grid md:grid-cols-12 gap-6 items-start">
