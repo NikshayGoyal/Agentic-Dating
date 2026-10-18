@@ -1,9 +1,10 @@
 import { callGPT4oMini } from '@/lib/openai';
 import { createDatingAgent, generateDateResponse, type DatingAgentConfig } from './dater';
-import { getProfileByPersonId, getPersonById, createDateConversation, getDatesByPersonId } from '@/lib/db';
-import { DATE_SCENARIOS, type DateMessage, type DateScenario } from '@/lib/types';
+import { getProfileByPersonId, getPersonById, createDateConversation } from '@/lib/db';
+import { rankCandidatesByVectorSimilarity } from '@/lib/embeddings';
+import { DATE_SCENARIOS, type DateMessage, type DateScenario, type PersonProfile } from '@/lib/types';
 
-// Concurrency limiter
+// Concurrency limiter with promise pooling
 async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]> {
   const results: T[] = [];
   const executing: Promise<void>[] = [];
@@ -16,7 +17,7 @@ async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit: number)
 
     if (executing.length >= limit) {
       await Promise.race(executing);
-      executing.splice(0, executing.findIndex(e => e === p) + 1);
+      executing.splice(executing.findIndex(e => e === p), 1);
     }
   }
 
@@ -24,55 +25,13 @@ async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit: number)
   return results;
 }
 
-// ===== Round 1: Vibe Check (Quick Compatibility Scoring) =====
+// ===== Round 1: Fast Stage-1 Semantic Vector Filter + Vibe Check =====
 
 interface VibeScore {
   personId: string;
   targetId: string;
   score: number;
   reason: string;
-}
-
-async function vibeCheckForPerson(
-  personId: string,
-  personName: string,
-  personProfileSummary: string,
-  otherPeople: Array<{ id: string; name: string; summary: string }>
-): Promise<VibeScore[]> {
-  const systemPrompt = `You are a dating compatibility expert. Given a person's profile and a list of potential matches, score each match's compatibility from 0-100.
-
-Consider: shared interests, complementary personalities, values alignment, potential chemistry, communication style compatibility.
-
-Respond with a JSON object: { "scores": [{ "id": "person_id", "score": 0-100, "reason": "one-sentence reason" }] }`;
-
-  const othersList = otherPeople.map(p => `- ID: ${p.id} | Name: ${p.name} | Profile: ${p.summary}`).join('\n');
-
-  const userPrompt = `Person: ${personName}
-Profile: ${personProfileSummary}
-
-Rate compatibility with each of these people:
-${othersList}`;
-
-  try {
-    const response = await callGPT4oMini(systemPrompt, userPrompt, true);
-    const parsed = JSON.parse(response);
-    const scores = parsed.scores || [];
-    
-    return scores.map((s: { id: string; score: number; reason: string }) => ({
-      personId,
-      targetId: s.id,
-      score: Math.min(100, Math.max(0, s.score || 50)),
-      reason: s.reason || 'Potential connection',
-    }));
-  } catch (error) {
-    console.error(`Vibe check error for ${personName}:`, error);
-    return otherPeople.map(p => ({
-      personId,
-      targetId: p.id,
-      score: 50,
-      reason: 'Could be interesting',
-    }));
-  }
 }
 
 // ===== Round 2: Speed Dates =====
@@ -117,10 +76,10 @@ async function runSpeedDate(
     }
   }
 
-  // Evaluate chemistry
+  // Evaluate chemistry with calibrated psychometric rubric
   const { chemistryScore, highlights } = await evaluateChemistry(
-    agent1.personName,
-    agent2.personName,
+    agent1,
+    agent2,
     messages,
     scenario
   );
@@ -128,30 +87,53 @@ async function runSpeedDate(
   return { messages, chemistryScore, highlights };
 }
 
+/**
+ * Calibrated 5-tier psychometric chemistry evaluation with Chain-of-Thought (CoT)
+ * and anti-sycophancy penalty to eliminate score clumping.
+ */
 async function evaluateChemistry(
-  person1Name: string,
-  person2Name: string,
+  agent1: DatingAgentConfig,
+  agent2: DatingAgentConfig,
   messages: DateMessage[],
   scenario: DateScenario
 ): Promise<{ chemistryScore: number; highlights: string }> {
   const convoText = messages.map(m => `${m.senderName}: ${m.content}`).join('\n');
 
-  const systemPrompt = `You evaluate dating chemistry between two people based on their conversation. 
-Score from 0-100 and identify the best moment.
-Respond as JSON: { "score": 0-100, "highlights": "The best/most memorable moment from this date in 1-2 sentences" }`;
+  const systemPrompt = `You are a calibrated, rigorous relationship psychologist evaluating dating chemistry between two individuals.
 
-  const userPrompt = `Date scenario: ${scenario.title} — ${scenario.setting}
+SCORING RUBRIC (CALIBRATED DISTRIBUTION):
+- 0-35 (Clash / Dealbreaker / Sterile): One-sided monologue, awkward disconnect, or clear clash with core values/dealbreakers.
+- 36-55 (Polite Acquaintance / No Spark): Cordial small talk, surface-level agreement, pleasant but lacks wit, banter, or romantic tension.
+- 56-75 (Solid Connection): Natural conversational flow, shared interests, mutual engagement, comfortable banter.
+- 76-90 (High Chemistry): Electric banter, spontaneous humor, playful teasing, mutual vulnerability, undeniable spark.
+- 91-100 (Exceptional Soulmate Tier): Rare conversational synchronicity, effortless flow, complementary philosophies.
+
+ANTI-INFLATION & ANTI-SYCOPHANCY PENALTIES:
+- Deduct 15 points if the conversation is purely polite flattery with zero playful friction or authenticity.
+- If either person's dealbreakers are violated or clashed without resolution, score MUST NOT exceed 40.
+- Most average first dates score between 48 and 68. DO NOT default to 75-85 unless genuine spark is evident.
+
+Respond with JSON:
+{
+  "reasoning": "2-sentence psychometric evaluation justifying the score based on the rubric",
+  "score": 0-100,
+  "highlights": "The single most memorable exchange or turning point in 1-2 sentences"
+}`;
+
+  const userPrompt = `Date Scenario: ${scenario.title} — ${scenario.setting}
+${agent1.personName}'s Dealbreakers: ${agent1.dealbreakers.join(', ') || 'None specified'} | Hot Take: "${agent1.hotTake || 'None'}"
+${agent2.personName}'s Dealbreakers: ${agent2.dealbreakers.join(', ') || 'None specified'} | Hot Take: "${agent2.hotTake || 'None'}"
 
 Conversation:
 ${convoText}
 
-Evaluate the chemistry between ${person1Name} and ${person2Name}.`;
+Evaluate the chemistry between ${agent1.personName} and ${agent2.personName}.`;
 
   try {
     const response = await callGPT4oMini(systemPrompt, userPrompt, true);
     const parsed = JSON.parse(response);
     return {
-      chemistryScore: Math.min(100, Math.max(0, parsed.score || 50)),
+      chemistryScore: Math.min(100, Math.max(0, parsed.score || 55)),
       highlights: parsed.highlights || 'An interesting conversation with moments of connection.',
     };
   } catch {
@@ -178,13 +160,13 @@ export async function runDatingSimulation(
   };
 
   // Load all profiles
-  const profiles: Map<string, { id: string; name: string; profile: ReturnType<typeof getProfileByPersonId> }> = new Map();
+  const profiles: Map<string, { id: string; name: string; profile: PersonProfile }> = new Map();
   
   for (const id of personIds) {
     const profile = getProfileByPersonId(id);
     const person = getPersonById(id) as { name: string } | undefined;
     if (profile && person) {
-      profiles.set(id, { id, name: person.name, profile });
+      profiles.set(id, { id, name: person.name, profile: profile as unknown as PersonProfile });
     }
   }
 
@@ -193,38 +175,34 @@ export async function runDatingSimulation(
     throw new Error('Need at least 2 people with profiles to run dating simulation');
   }
 
-  // ===== ROUND 1: Vibe Check =====
-  report('vibe_check', 0, validIds.length, 'Starting vibe check round...');
+  // ===== ROUND 1: Two-Stage Funnel (Semantic Vector Filter) =====
+  report('vibe_check', 0, validIds.length, 'Executing Stage 1 Semantic Vector Funnel...');
   
-  const vibeScores: Map<string, VibeScore[]> = new Map();
-  
-  const vibeCheckTasks = validIds.map((personId, index) => async () => {
-    const { name, profile } = profiles.get(personId)!;
-    const others = validIds
-      .filter(id => id !== personId)
-      .map(id => {
-        const p = profiles.get(id)!;
-        return { id, name: p.name, summary: (p.profile as { summary?: string })?.summary || '' };
-      });
-    
-    const scores = await vibeCheckForPerson(personId, name, (profile as { summary?: string })?.summary || '', others);
-    vibeScores.set(personId, scores);
-    report('vibe_check', index + 1, validIds.length, `Vibe checked: ${name}`);
+  const allCandidates = validIds.map(id => {
+    const p = profiles.get(id)!;
+    return { id, name: p.name, profile: p.profile };
   });
 
-  await runWithConcurrency(vibeCheckTasks, 5);
-
-  // ===== Determine top matches =====
   const topMatchesPerPerson: Map<string, string[]> = new Map();
   
-  for (const personId of validIds) {
-    const scores = vibeScores.get(personId) || [];
-    const sorted = scores.sort((a, b) => b.score - a.score);
-    const topN = Math.min(8, sorted.length);
-    topMatchesPerPerson.set(personId, sorted.slice(0, topN).map(s => s.targetId));
+  for (let i = 0; i < validIds.length; i++) {
+    const personId = validIds[i];
+    const { name, profile } = profiles.get(personId)!;
+    
+    // Fast O(N) vector similarity retrieval, picking top 4 candidates
+    const rankedMatches = await rankCandidatesByVectorSimilarity(
+      personId,
+      name,
+      profile,
+      allCandidates,
+      4
+    );
+
+    topMatchesPerPerson.set(personId, rankedMatches.map(m => m.id));
+    report('vibe_check', i + 1, validIds.length, `Vector filtered matches for: ${name}`);
   }
 
-  // Deduplicate pairs for speed dates
+  // Deduplicate pairs for speed dates (O(N * K) instead of O(N^2))
   const uniquePairs: Set<string> = new Set();
   const datePairs: Array<[string, string]> = [];
 
@@ -238,15 +216,14 @@ export async function runDatingSimulation(
     }
   }
 
-  // ===== ROUND 2: Speed Dates =====
-  report('speed_dating', 0, datePairs.length, `Starting ${datePairs.length} speed dates...`);
+  // ===== ROUND 2: Speed Dates on Pruned Top-K Pairs =====
+  report('speed_dating', 0, datePairs.length, `Starting ${datePairs.length} targeted speed dates...`);
 
   // Create agents for all people
   const agents: Map<string, DatingAgentConfig> = new Map();
   for (const personId of validIds) {
     const { name, profile } = profiles.get(personId)!;
-    const profileData = profile as unknown as import('@/lib/types').PersonProfile;
-    agents.set(personId, createDatingAgent(personId, name, profileData));
+    agents.set(personId, createDatingAgent(personId, name, profile));
   }
 
   // Run speed dates with concurrency limit
@@ -276,12 +253,12 @@ export async function runDatingSimulation(
     }
   });
 
-  await runWithConcurrency(dateTasks, 3);
+  await runWithConcurrency(dateTasks, 4);
 
   report('complete', datePairs.length, datePairs.length, 'Dating simulation complete!');
 }
 
-// ===== Run for a single new person against existing pool =====
+// ===== Two-Stage Funnel execution for a single newly ingested person =====
 
 export async function runDatingForNewPerson(
   newPersonId: string,
@@ -294,19 +271,45 @@ export async function runDatingForNewPerson(
     throw new Error('New person profile not found');
   }
 
-  const newAgent = createDatingAgent(newPersonId, newPerson.name, newProfile as unknown as import('@/lib/types').PersonProfile);
+  const typedNewProfile = newProfile as unknown as PersonProfile;
 
-  // Run speed dates with each existing person
-  for (let i = 0; i < existingPersonIds.length; i++) {
-    const existingProfile = getProfileByPersonId(existingPersonIds[i]);
-    const existingPerson = getPersonById(existingPersonIds[i]) as { name: string } | undefined;
-    
-    if (!existingProfile || !existingPerson) continue;
+  // STAGE 1: Fast O(N) Semantic Vector Filter
+  // Collect all available candidates
+  const candidatePool: Array<{ id: string; name: string; profile: PersonProfile }> = [];
+  for (const id of existingPersonIds) {
+    const prof = getProfileByPersonId(id);
+    const pers = getPersonById(id) as { name: string } | undefined;
+    if (prof && pers) {
+      candidatePool.push({ id, name: pers.name, profile: prof as unknown as PersonProfile });
+    }
+  }
+
+  // Filter candidate pool to Top-4 matches using vector cosine similarity
+  // This prunes 28 potential simulations down to 4 (saving >85% tokens and preventing server timeouts)
+  const topCandidates = await rankCandidatesByVectorSimilarity(
+    newPersonId,
+    newPerson.name,
+    typedNewProfile,
+    candidatePool,
+    4
+  );
+
+  console.log(`[Stage 1 Funnel] Pruned candidate pool from ${candidatePool.length} to Top ${topCandidates.length}:`, 
+    topCandidates.map(c => `${c.name} (${Math.round(c.similarity * 100)}% match)`).join(', ')
+  );
+
+  const newAgent = createDatingAgent(newPersonId, newPerson.name, typedNewProfile);
+
+  // STAGE 2: Multi-turn Date Simulation ONLY for Top-K Candidates
+  for (let i = 0; i < topCandidates.length; i++) {
+    const targetCandidate = topCandidates[i];
+    const targetProfile = getProfileByPersonId(targetCandidate.id);
+    if (!targetProfile) continue;
 
     const existingAgent = createDatingAgent(
-      existingPersonIds[i], 
-      existingPerson.name, 
-      existingProfile as unknown as import('@/lib/types').PersonProfile
+      targetCandidate.id,
+      targetCandidate.name,
+      targetProfile as unknown as PersonProfile
     );
 
     const scenario = DATE_SCENARIOS[i % DATE_SCENARIOS.length];
@@ -316,7 +319,7 @@ export async function runDatingForNewPerson(
       
       createDateConversation({
         person1Id: newPersonId,
-        person2Id: existingPersonIds[i],
+        person2Id: targetCandidate.id,
         round: 2,
         scenario: JSON.stringify(scenario),
         messages: result.messages,
@@ -324,9 +327,9 @@ export async function runDatingForNewPerson(
         highlights: result.highlights,
       });
 
-      console.log(`Date: ${newPerson.name} ❤️ ${existingPerson.name}: ${result.chemistryScore}%`);
+      console.log(`Date: ${newPerson.name} ❤️ ${targetCandidate.name}: ${result.chemistryScore}%`);
     } catch (error) {
-      console.error(`Date error:`, error);
+      console.error(`Date error for ${newPerson.name} & ${targetCandidate.name}:`, error);
     }
   }
 }

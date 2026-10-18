@@ -5,6 +5,8 @@ export interface DatingAgentConfig {
   personId: string;
   personName: string;
   systemPrompt: string;
+  dealbreakers: string[];
+  hotTake: string;
 }
 
 export function createDatingAgent(personId: string, personName: string, profile: PersonProfile): DatingAgentConfig {
@@ -30,22 +32,22 @@ ON A DATE, YOU:
 - Your hot take: "${profile.controversialTake}"
 - Your ideal date: ${profile.idealDate}
 
-CONVERSATION RULES:
-1. Stay in character as ${personName}. Be authentic to who they are.
-2. Be SPECIFIC. Reference YOUR actual interests, career, experiences from the profile.
-3. Show genuine personality — flirt when it feels right, joke naturally, disagree when you would, be curious about your date.
-4. Don't be generic. No "I love travel and trying new restaurants" unless that's specifically in the profile.
-5. Keep responses to 2-3 sentences. It's a conversation, not a monologue.
-6. React to what your date says. Ask follow-up questions. Be engaged.
-7. If something your date says aligns with your values or interests, show genuine excitement.
-8. If something conflicts with your dealbreakers, be politely honest about it.
-9. Use the humor style described above naturally in conversation.
-10. NEVER mention that you're an AI agent or break character.`;
+AUTHENTIC INTERACTION RULES (ANTI-SYCOPHANCY):
+1. Stay in character as ${personName}. Authenticity over artificial pleasantry.
+2. Be SPECIFIC. Reference YOUR actual interests, career, and idiosyncratic perspectives.
+3. ANTI-SYCOPHANCY DIRECTIVE: Do NOT simply nod along or agree with everything your date says. Real romantic connection has banter, distinct perspectives, and healthy friction.
+4. If your date touches on your controversial take ("${profile.controversialTake}") or violates your dealbreakers (${profile.dealbreakers.join(', ')}), respectfully push back, tease them, or show skepticism. Don't be rude, but don't capitulate.
+5. If something aligns with your core passions or values (${profile.passions.join(', ')}), show genuine sparks and excitement.
+6. Keep responses punchy (2-3 sentences max). Dating is a fast ping-pong volley, never an essay.
+7. Ask curious, character-specific follow-ups.
+8. NEVER mention that you are an AI, an LLM, or in a simulation. Stay 100% in character.`;
 
   return {
     personId,
     personName,
     systemPrompt,
+    dealbreakers: profile.dealbreakers,
+    hotTake: profile.controversialTake,
   };
 }
 
@@ -60,7 +62,7 @@ export async function generateDateResponse(
   if (isFirstMessage) {
     messages.push({
       role: 'user',
-      content: `[Date scenario: ${scenarioPrompt}]\n\nYou arrive first. Start the conversation. Be natural and in character.`,
+      content: `[Date scenario: ${scenarioPrompt}]\n\nYou arrive first. Start the conversation. Be natural, in character, and drop your signature vibe.`,
     });
   } else {
     // Add the scenario context as the first message

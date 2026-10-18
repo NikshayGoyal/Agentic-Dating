@@ -119,13 +119,31 @@ Respond as JSON:
   "bestDateIdea": "A specific, creative date idea perfect for this pair"
 }`;
 
+  const getField = (obj: Record<string, unknown> | null, ...keys: string[]) => {
+    if (!obj) return 'N/A';
+    for (const k of keys) {
+      if (obj[k] !== undefined && obj[k] !== null) {
+        return Array.isArray(obj[k]) ? (obj[k] as string[]).join(', ') : String(obj[k]);
+      }
+    }
+    return 'N/A';
+  };
+
   const userPrompt = `Match Analysis:
 
 Person 1: ${person1Name}
-${p1 ? `Personality: ${p1.personality_type}, Traits: ${p1.traits}, Hobbies: ${p1.hobbies}, Values: ${p1.values_list}, Looking for: ${p1.looking_for}` : 'Profile not available'}
+Personality: ${getField(p1, 'personality_type', 'personalityType')}
+Traits: ${getField(p1, 'traits')}
+Hobbies: ${getField(p1, 'hobbies')}
+Values: ${getField(p1, 'values_list', 'values')}
+Looking for: ${getField(p1, 'looking_for', 'lookingFor')}
 
-Person 2: ${person2Name}  
-${p2 ? `Personality: ${p2.personality_type}, Traits: ${p2.traits}, Hobbies: ${p2.hobbies}, Values: ${p2.values_list}, Looking for: ${p2.looking_for}` : 'Profile not available'}
+Person 2: ${person2Name}
+Personality: ${getField(p2, 'personality_type', 'personalityType')}
+Traits: ${getField(p2, 'traits')}
+Hobbies: ${getField(p2, 'hobbies')}
+Values: ${getField(p2, 'values_list', 'values')}
+Looking for: ${getField(p2, 'looking_for', 'lookingFor')}
 
 Chemistry Score from their date: ${chemistryScore}%
 Date Highlights: ${highlights}
